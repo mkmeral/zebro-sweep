@@ -33,6 +33,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
     def __init__(self, map_shape):
         super().__init__()
         self.map = Map(map_shape[0], map_shape[1])
+        self.step_size = 10
         self.base = {"x": 0, "y": 0}
         self.zebros = [
             {"x": self.base["x"], "y": self.base["y"], "battery": 1.0, "damage": 0.0}]
@@ -72,46 +73,101 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 0:
             pass
 
+        zebro_curr_x = self.zebros[self.turn]["x"]
+        zebro_curr_y = self.zebros[self.turn]["y"]
+
         """NORTH"""
         if action == 1:
-            self.zebros[self.turn]["y"] -= 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x, zebro_curr_y - 1):
+                    zebro_curr_y -= 1
+                else:
+                    break
+
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """NORTHEAST"""
         if action == 2:
-            self.zebros[self.turn]["x"] += 1
-            self.zebros[self.turn]["y"] -= 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y - 1):
+                    zebro_curr_x += 1
+                    zebro_curr_y -= 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """EAST"""
         if action == 3:
-            self.zebros[self.turn]["x"] += 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y):
+                    zebro_curr_x += 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
 
         """SOUTHEAST"""
         if action == 4:
-            self.zebros[self.turn]["x"] += 1
-            self.zebros[self.turn]["y"] += 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y + 1):
+                    zebro_curr_x += 1
+                    zebro_curr_y += 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """SOUTH"""
         if action == 5:
-            self.zebros[self.turn]["y"] += 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x, zebro_curr_y + 1):
+                    zebro_curr_y += 1
+                else:
+                    break
+
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """SOUTHWEST"""
         if action == 6:
-            self.zebros[self.turn]["x"] -= 1
-            self.zebros[self.turn]["y"] += 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y + 1):
+                    zebro_curr_x -= 1
+                    zebro_curr_y += 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """WEST"""
         if action == 7:
-            self.zebros[self.turn]["x"] -= 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y):
+                    zebro_curr_x -= 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
 
         """NORTHWEST"""
         if action == 8:
-            self.zebros[self.turn]["x"] -= 1
-            self.zebros[self.turn]["y"] -= 1
+            for i in range(self.step_size):
+                if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y - 1):
+                    zebro_curr_x -= 1
+                    zebro_curr_y -= 1
+                else:
+                    break
+
+        self.zebros[self.turn]["x"] = zebro_curr_x
+        self.zebros[self.turn]["y"] = zebro_curr_y
 
         self.zebros[self.turn]["battery"] -= random.uniform(0.01, 0.025)
         self.zebros[self.turn]["damage"] += random.uniform(0.005, 0.01)
 
-        self.turn = (self.turn + 1)% len(self.zebros)
+        self.turn = (self.turn + 1) % len(self.zebros)
         return
 
     def _reward_helper(self):

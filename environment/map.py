@@ -49,8 +49,15 @@ class Map:
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
 
-    def blocked_square(self):
-        pass
+    def square_is_blocked(self, x, y):
+
+        offset_for_blocked_value = 15
+        b = self.map[x, y] & (1 << offset_for_blocked_value)
+
+        #if not blocked
+        if b == 0:
+            return true
+        return false
 
     def generate_blocks(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
@@ -66,6 +73,7 @@ class Map:
             a map as a matrix containing only the blocked areas.
         """
 
+        offset_for_blocked_value = 15
         height, width = self.map.shape
 
         while True:
@@ -82,6 +90,13 @@ class Map:
                 blocks[int(i / width), int(i % width)] = 1
 
             if self.check_fully_blocked_areas(blocks):
+                # Also shift bits into proper place before
+                for row in blocks:
+                    for val in row:
+                        if val > max_value:
+                            val = max_value
+                        val = val << offset_for_blocked_value
+
                 return blocks
             else:
                 # should call this method again from outside
@@ -104,7 +119,7 @@ class Map:
         height, width = self.map.shape
         slow_areas = np.zeros((height, width), dtype=np.int16)
 
-        offset_for_slow_value = 13
+        offset_for_slow_value = 12
         max_value = 2 ** 3
 
         number_of_centers = 2  # TODO: Create a size based value for it
@@ -122,6 +137,7 @@ class Map:
             for val in row:
                 if val > max_value:
                     val = max_value
+
                 val = val << offset_for_slow_value
 
         return slow_areas
