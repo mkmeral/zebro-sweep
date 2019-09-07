@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import random
+from PIL import Image
 
 
 class Map:
@@ -285,3 +286,7 @@ class Map:
                     (radius - distance_to_center) * max_value / radius) if radius > distance_to_center else 0
 
         return result
+
+    def _render(self):
+        "Creates an image from the current map."
+        return Image.fromarray(self.map, "RGB")
