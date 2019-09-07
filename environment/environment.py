@@ -154,15 +154,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         """
         pass
 
-    def _end_state(self, map):
-        """
-        Checks if whole maps is explored.
-        :param map: Numpy array representing the map.
-        :return: true if the map is totally explored.
-        """
-
-        pass
-
     def _render(self):
         """
         Creates an image of the given environment

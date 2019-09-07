@@ -285,3 +285,10 @@ class Map:
                     (radius - distance_to_center) * max_value / radius) if radius > distance_to_center else 0
 
         return result
+    def _end_state(self, map_shape, map):
+        """
+        Checks if whole maps is explored.
+        :param map: Numpy array representing the map.
+        :return: true if the map is totally explored.
+        """
+        pass
