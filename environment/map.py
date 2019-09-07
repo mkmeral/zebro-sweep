@@ -50,6 +50,16 @@ class Map:
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
 
+    def square_is_blocked(self, x, y):
+
+        offset_for_blocked_value = 15
+        b = self.map[x, y] & (1 << offset_for_blocked_value)
+
+        # if not blocked
+        if b == 0:
+            return true
+        return false
+
     def generate_blocks(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
 
