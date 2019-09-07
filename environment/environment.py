@@ -62,9 +62,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
     def observation_spec(self):
         return self._observation_spec
 
-    def _reset(self):
-        #___init___(self, map_shape)
-        pass
+    def _reset(self,map_shape):
+        self.___init___(self, map_shape)
 
     def _step(self, action):
         if self.zebros[self.turn]["battery"] == 0 or self.zebros[self.turn]["damage"] >= 1.0:
