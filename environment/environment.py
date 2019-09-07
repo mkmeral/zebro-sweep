@@ -6,6 +6,7 @@ import tensorflow as tf
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
 import numpy
+from math import sqrt
 
 tf.compat.v1.enable_v2_behavior()
 
@@ -27,7 +28,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         1 -> Wait/Sleep
 
     """
-    def __init__(self):
+    def __init__(self, map_shape):
         super().__init__()
         self.map = None
         self.base = {"x": 0, "y": 0}
@@ -50,6 +51,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
             minimum=0,
             name="observation"
         )
+        self.MAX_RANGE = 15/100 * (map_shape[0] + map_shape[1])/2;
+
 
     def action_spec(self):
         return self._action_spec
@@ -74,6 +77,38 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         :return: An M by N matrix of uint6 as a Map for the environment
         """
         pass
+
+    def _reward_helper(self, map):
+        """
+        Helper function for the reward calculator, keeps zebro connected t
+        o the others and makes sure they spread as much as possible.
+        :param map:
+        :return: 0 - if zebro out of rangem, it should refocus on finding the others;
+                1 - if all zebros are at maximum spread, meaning its ok
+                0,5 - needs to spread out more
+
+        """
+        dist_sum = 0
+        count = 0
+        min = self.MAX_RANGE + 1
+        for i in range(0,len(self.zebros)):
+            dist_x = abs(self.zebros[i]["x"]-self["x"])
+            dist_y = abs(self.zebros[i]["y"] - self["x"])
+            dist_to_zebro = sqrt(dist_x**2 + dist_y**2)
+            if dist_to_zebro <= self.MAX_RANGE:
+                count += 1
+                dist_sum += dist_to_zebro
+                min = min if min < dist_sum else dist_sum
+        if count == 0:
+            return 0
+        avg = dist_sum / count
+        if avg == self.MAX_RANGE
+            return 1
+        if min == 0
+            return 0,5
+        #if avg < MAX_RANGE
+        #    return 0.8
+        return 0.8
 
     def _calc_reward(self, map):
         """
