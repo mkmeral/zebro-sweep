@@ -112,15 +112,15 @@ class Map:
             x = random.randint(0, width)
             y = random.randint(0, height)
 
-            sunny_areas = + self.create_circular_effect((x, y), max_value=7)
+            slow_areas = + self.create_circular_effect((x, y), max_value=7)
 
         # Check to make sure we dont have an overflow!
         # Also shift bits into proper place
-        for row in sunny_areas:
+        for row in slow_areas:
             for val in row:
                 if val > max_value:
                     val = max_value
-                val = val << offset_for_slow_value
+                slow_areas[row][val] = val << offset_for_slow_value
 
         return slow_areas
 
@@ -159,7 +159,7 @@ class Map:
             for val in row:
                 if val > max_value:
                     val = max_value
-                val = val << offset_for_sun_value
+                sunny_areas[row][val] = val << offset_for_sun_value
 
         return sunny_areas
 
@@ -192,9 +192,8 @@ class Map:
         for row in importance_map:
             for val in row:
                 val *= coefficient
-                val = max_importance_value if val > max_importance_value else val
+                importance_map[row][val] = max_importance_value if val > max_importance_value else val
 
-        # TODO: Generate Importance
         #   by making those locations the most important points
         #   and then slowly reducing the importance in radius r
         #   r should be chosen by the size of map and #important_locations
