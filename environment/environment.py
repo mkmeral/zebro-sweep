@@ -3,8 +3,9 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-
+from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
+import numpy
 
 tf.compat.v1.enable_v2_behavior()
 
@@ -34,8 +35,21 @@ class ZebroEnvironment(py_environment.PyEnvironment):
             {"x": 0, "y": 0, "battery": 1.0, "damage": 0.0}]
 
         self.turn = 0 # to indicate which agent will take next action
-        self._action_spec = None  # TODO: add action spec
-        self._observation_spec = None  # TODO: add observation spec
+        self._action_spec = array_spec.BoundedArraySpec(
+            shape=(),
+            dtype=numpy.int32,
+            minimum=0,
+            maximum=8,
+            name="action"
+        )
+        number_of_observation_points = self.map.size + len(self.zebros) * len(self.zebros[0].keys()) + len(self.base.keys())
+        # TODO: Add a size variable for map
+        self._observation_spec = array_spec.BoundedArraySpec(
+            shape=(number_of_observation_points, 1),
+            dtype=numpy.int16,
+            minimum=0,
+            name="observation"
+        )
 
     def action_spec(self):
         return self._action_spec
