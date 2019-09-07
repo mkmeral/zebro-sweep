@@ -102,11 +102,11 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if count == 0:
             return 0
         avg = dist_sum / count
-        if avg == self.MAX_RANGE
+        if avg == self.MAX_RANGE:
             return 1
-        if min == 0
+        if min == 0:
             return 0,5
-        #if avg < MAX_RANGE
+        #if avg < MAX_RANGE:
         #    return 0.8
         return 0.8
 
