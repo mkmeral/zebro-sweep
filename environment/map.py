@@ -296,4 +296,9 @@ class Map:
         :param map: Numpy array representing the map.
         :return: true if the map is totally explored.
         """
-        pass
+        flag = True
+        for i in range  (0, self.map.shape[0]):
+            for j in range(0, self.map.shape[1]):
+                if map[i][j] & (2**6-1) == 0:
+                    flag = False
+        return flag

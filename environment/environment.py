@@ -148,7 +148,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
     def _calc_reward(self, map):
         """
-
         :param map: A numpy matrix representing the map
         :return: Integer representing the reward for the given map
         """
