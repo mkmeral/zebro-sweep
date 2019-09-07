@@ -8,6 +8,7 @@ from tf_agents.environments import py_environment
 
 import numpy
 from math import sqrt
+import random
 from .map import Map
 tf.compat.v1.enable_v2_behavior()
 
@@ -62,6 +63,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         return self._observation_spec
 
     def _reset(self):
+        #___init___(self, map_shape)
         pass
 
     def _step(self, action):
@@ -110,9 +112,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         self.zebros[self.turn]["battery"] -= random.uniform(0.01, 0.025)
         self.zebros[self.turn]["damage"] += random.uniform(0.005, 0.01)
 
-        turn = turn + 1
-        turn = turn % len(self.zebros)
-
+        self.turn = (self.turn + 1)% len(self.zebros)
         return
 
     def _reward_helper(self):
