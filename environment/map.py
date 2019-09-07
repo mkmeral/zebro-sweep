@@ -79,7 +79,7 @@ class Map:
         while True:
             #blocks = np.zeros((height, width), dtype=np.int16)
             blocks = np.ones((height, width), dtype=np.int16) * 2
-            # TODO: generate blocks
+            offset_for_blocked_value = 15
 
             nr_blocked_squares = int(width * height * blocked_ratio)
 
@@ -90,6 +90,11 @@ class Map:
                 blocks[int(i / width), int(i % width)] = 1
 
             if self.check_fully_blocked_areas(blocks):
+                # Also shift bits into proper place
+                for row in slow_areas:
+                    for val in row:
+                        blocks[row][val] = val << offset_for_blocked_value
+
                 return blocks
             else:
                 # should call this method again from outside
