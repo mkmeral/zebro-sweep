@@ -30,6 +30,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
     def __init__(self):
         super().__init__()
         self.map = None
+        self.step_size = 10
         self.base = {"x": 0, "y": 0}
         self.zebros = [
             {"x": self.base["x"], "y": self.base["y"], "battery": 1.0, "damage": 0.0}]
@@ -69,39 +70,40 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
         """NORTH"""
         if action == 1:
-            self.zebros[self.turn]["y"] -= 1
+            for i in range(self.step_size):
+                self.zebros[self.turn]["y"] -= 1
 
         """NORTHEAST"""
         if action == 2:
-            self.zebros[self.turn]["x"] += 1
-            self.zebros[self.turn]["y"] -= 1
+            self.zebros[self.turn]["x"] += self.step_size
+            self.zebros[self.turn]["y"] -= self.step_size
 
         """EAST"""
         if action == 3:
-            self.zebros[self.turn]["x"] += 1
+            self.zebros[self.turn]["x"] += self.step_size
 
         """SOUTHEAST"""
         if action == 4:
-            self.zebros[self.turn]["x"] += 1
-            self.zebros[self.turn]["y"] += 1
+            self.zebros[self.turn]["x"] += self.step_size
+            self.zebros[self.turn]["y"] += self.step_size
 
         """SOUTH"""
         if action == 5:
-            self.zebros[self.turn]["y"] += 1
+            self.zebros[self.turn]["y"] += self.step_size
 
         """SOUTHWEST"""
         if action == 6:
-            self.zebros[self.turn]["x"] -= 1
-            self.zebros[self.turn]["y"] += 1
+            self.zebros[self.turn]["x"] -= self.step_size
+            self.zebros[self.turn]["y"] += self.step_size
 
         """WEST"""
         if action == 7:
-            self.zebros[self.turn]["x"] -= 1
+            self.zebros[self.turn]["x"] -= self.step_size
 
         """NORTHWEST"""
         if action == 8:
-            self.zebros[self.turn]["x"] -= 1
-            self.zebros[self.turn]["y"] -= 1
+            self.zebros[self.turn]["x"] -= self.step_size
+            self.zebros[self.turn]["y"] -= self.step_size
 
         self.zebros[self.turn]["battery"] -= random.uniform(0.01, 0.025)
         self.zebros[self.turn]["damage"] += random.uniform(0.005, 0.01)

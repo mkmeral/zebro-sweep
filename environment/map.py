@@ -49,6 +49,9 @@ class Map:
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
 
+    def blocked_square(self):
+        pass
+
     def generate_blocks(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
 
