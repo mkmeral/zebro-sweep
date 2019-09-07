@@ -204,19 +204,9 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
     def _calc_reward(self, map):
         """
-
         :param map: A numpy matrix representing the map
         :return: Integer representing the reward for the given map
         """
-        pass
-
-    def _end_state(self, map):
-        """
-        Checks if whole maps is explored.
-        :param map: Numpy array representing the map.
-        :return: true if the map is totally explored.
-        """
-
         pass
 
     def _render(self):

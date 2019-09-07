@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import random
+from PIL import Image
 
 
 class Map:
@@ -49,16 +50,6 @@ class Map:
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
 
-    def square_is_blocked(self, x, y):
-
-        offset_for_blocked_value = 15
-        b = self.map[x, y] & (1 << offset_for_blocked_value)
-
-        #if not blocked
-        if b == 0:
-            return true
-        return false
-
     def generate_blocks(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
 
@@ -73,7 +64,6 @@ class Map:
             a map as a matrix containing only the blocked areas.
         """
 
-        offset_for_blocked_value = 15
         height, width = self.map.shape
 
         while True:
@@ -90,13 +80,6 @@ class Map:
                 blocks[int(i / width), int(i % width)] = 1
 
             if self.check_fully_blocked_areas(blocks):
-                # Also shift bits into proper place before
-                for row in blocks:
-                    for val in row:
-                        if val > max_value:
-                            val = max_value
-                        val = val << offset_for_blocked_value
-
                 return blocks
             else:
                 # should call this method again from outside
@@ -119,7 +102,7 @@ class Map:
         height, width = self.map.shape
         slow_areas = np.zeros((height, width), dtype=np.int16)
 
-        offset_for_slow_value = 12
+        offset_for_slow_value = 13
         max_value = 2 ** 3
 
         number_of_centers = 2  # TODO: Create a size based value for it
@@ -129,16 +112,15 @@ class Map:
             x = random.randint(0, width)
             y = random.randint(0, height)
 
-            sunny_areas = + self.create_circular_effect((x, y), max_value=7)
+            slow_areas = + self.create_circular_effect((x, y), max_value=7)
 
         # Check to make sure we dont have an overflow!
         # Also shift bits into proper place
-        for row in sunny_areas:
+        for row in slow_areas:
             for val in row:
                 if val > max_value:
                     val = max_value
-
-                val = val << offset_for_slow_value
+                slow_areas[row][val] = val << offset_for_slow_value
 
         return slow_areas
 
@@ -177,7 +159,7 @@ class Map:
             for val in row:
                 if val > max_value:
                     val = max_value
-                val = val << offset_for_sun_value
+                sunny_areas[row][val] = val << offset_for_sun_value
 
         return sunny_areas
 
@@ -210,9 +192,8 @@ class Map:
         for row in importance_map:
             for val in row:
                 val *= coefficient
-                val = max_importance_value if val > max_importance_value else val
+                importance_map[row][val] = max_importance_value if val > max_importance_value else val
 
-        # TODO: Generate Importance
         #   by making those locations the most important points
         #   and then slowly reducing the importance in radius r
         #   r should be chosen by the size of map and #important_locations
@@ -304,3 +285,20 @@ class Map:
                     (radius - distance_to_center) * max_value / radius) if radius > distance_to_center else 0
 
         return result
+
+    def _render(self):
+        "Creates an image from the current map."
+        return Image.fromarray(self.map, "RGB")
+
+    def _end_state(self, map_shape, map):
+        """
+        Checks if whole maps is explored.
+        :param map: Numpy array representing the map.
+        :return: true if the map is totally explored.
+        """
+        flag = True
+        for i in range  (0, self.map.shape[0]):
+            for j in range(0, self.map.shape[1]):
+                if map[i][j] & (2**6-1) == 0:
+                    flag = False
+        return flag
