@@ -5,9 +5,10 @@ from __future__ import print_function
 import tensorflow as tf
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
+
 import numpy
 from math import sqrt
-
+from .map import Map
 tf.compat.v1.enable_v2_behavior()
 
 
@@ -30,7 +31,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
     """
     def __init__(self, map_shape):
         super().__init__()
-        self.map = None
+        self.map = Map(map_shape[0], map_shape[1])
         self.base = {"x": 0, "y": 0}
         self.zebros = [
             {"x": self.base["x"], "y": self.base["y"], "battery": 1.0, "damage": 0.0}]
@@ -113,15 +114,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         turn = turn % len(self.zebros)
 
         return
-
-    def _init_map(self, m, n):
-        """
-
-        :param m: the width of the map
-        :param n: the height of the map
-        :return: An M by N matrix of uint6 as a Map for the environment
-        """
-        pass
 
     def _reward_helper(self):
         """
