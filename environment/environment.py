@@ -32,7 +32,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         self.map = None
         self.base = {"x": 0, "y": 0}
         self.zebros = [
-            {"x": 0, "y": 0, "battery": 1.0, "damage": 0.0}]
+            {"x": self.base["x"], "y": self.base["y"], "battery": 1.0, "damage": 0.0}]
 
         self.turn = 0 # to indicate which agent will take next action
         self._action_spec = array_spec.BoundedArraySpec(
@@ -62,9 +62,54 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
     def _step(self, action):
         if self.zebros[self.turn]["battery"] == 0 or self.zebros[self.turn]["damage"] >= 1.0:
-             pass
+            pass
 
-        pass
+        if action == 0:
+            pass
+
+        """NORTH"""
+        if action == 1:
+            self.zebros[self.turn]["y"] -= 1
+
+        """NORTHEAST"""
+        if action == 2:
+            self.zebros[self.turn]["x"] += 1
+            self.zebros[self.turn]["y"] -= 1
+
+        """EAST"""
+        if action == 3:
+            self.zebros[self.turn]["x"] += 1
+
+        """SOUTHEAST"""
+        if action == 4:
+            self.zebros[self.turn]["x"] += 1
+            self.zebros[self.turn]["y"] += 1
+
+        """SOUTH"""
+        if action == 5:
+            self.zebros[self.turn]["y"] += 1
+
+        """SOUTHWEST"""
+        if action == 6:
+            self.zebros[self.turn]["x"] -= 1
+            self.zebros[self.turn]["y"] += 1
+
+        """WEST"""
+        if action == 7:
+            self.zebros[self.turn]["x"] -= 1
+
+        """NORTHWEST"""
+        if action == 8:
+            self.zebros[self.turn]["x"] -= 1
+            self.zebros[self.turn]["y"] -= 1
+
+        self.zebros[self.turn]["battery"] -= random.uniform(0.01, 0.025)
+        self.zebros[self.turn]["damage"] += random.uniform(0.005, 0.01)
+
+        turn = turn + 1
+        turn = turn % len(self.zebros)
+
+        return
 
     def _init_map(self, m, n):
         """
@@ -83,20 +128,13 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         """
         pass
 
-    def _check_loops(self, map):
-        """
-        Checks if all the area is accessible, makes sure there are no loops created by blocked pixels.
-        :param map: Numpy array representing the map
-        :return: true if there are no loops
-        """
-        pass
-
     def _end_state(self, map):
         """
         Checks if whole maps is explored.
         :param map: Numpy array representing the map.
         :return: true if the map is totally explored.
         """
+
         pass
 
     def _render(self):
