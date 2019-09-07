@@ -290,3 +290,11 @@ class Map:
     def _render(self):
         "Creates an image from the current map."
         return Image.fromarray(self.map, "RGB")
+
+    def _end_state(self, map_shape, map):
+        """
+        Checks if whole maps is explored.
+        :param map: Numpy array representing the map.
+        :return: true if the map is totally explored.
+        """
+        pass
