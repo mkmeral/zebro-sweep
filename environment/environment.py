@@ -78,7 +78,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         """
         pass
 
-    def _reward_helper(self, map):
+    def _reward_helper(self):
         """
         Helper function for the reward calculator, keeps zebro connected t
         o the others and makes sure they spread as much as possible.
