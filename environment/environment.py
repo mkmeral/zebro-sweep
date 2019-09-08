@@ -98,8 +98,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                 else:
                     break
 
-        self.zebros[self.turn]["y"] = zebro_curr_y
-
         """NORTHEAST"""
         if action == 2:
             for i in range(self.step_size):
@@ -109,9 +107,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                 else:
                     break
 
-        self.zebros[self.turn]["x"] = zebro_curr_x
-        self.zebros[self.turn]["y"] = zebro_curr_y
-
         """EAST"""
         if action == 3:
             for i in range(self.step_size):
@@ -119,8 +114,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                     zebro_curr_x += self.step_size
                 else:
                     break
-
-        self.zebros[self.turn]["x"] = zebro_curr_x
 
         """SOUTHEAST"""
         if action == 4:
@@ -131,9 +124,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                 else:
                     break
 
-        self.zebros[self.turn]["x"] = zebro_curr_x
-        self.zebros[self.turn]["y"] = zebro_curr_y
-
         """SOUTH"""
         if action == 5:
             for i in range(self.step_size):
@@ -141,8 +131,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                     zebro_curr_y += self.step_size
                 else:
                     break
-
-        self.zebros[self.turn]["y"] = zebro_curr_y
 
         """SOUTHWEST"""
         if action == 6:
@@ -153,9 +141,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                 else:
                     break
 
-        self.zebros[self.turn]["x"] = zebro_curr_x
-        self.zebros[self.turn]["y"] = zebro_curr_y
-
         """WEST"""
         if action == 7:
             for i in range(self.step_size):
@@ -163,8 +148,6 @@ class ZebroEnvironment(py_environment.PyEnvironment):
                     zebro_curr_x -= self.step_size
                 else:
                     break
-
-        self.zebros[self.turn]["x"] = zebro_curr_x
 
         """NORTHWEST"""
         if action == 8:
