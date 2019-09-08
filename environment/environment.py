@@ -240,7 +240,21 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         Returns observation as a vector
         :return: Observation vector
         """
-        # TODO: IONUT
+
+        observation = []
+
+        np_array = np.asarray(self.map).reshape(-1)
+
+        for i in np_array:
+            observation.append(i)
+
+        for z in self.zebros:
+            observation.append(z["x"])
+            observation.append(z["y"])
+            observation.append(z["battery"])
+            observation.append(z["damage"])
+
+        return observation
 
     def _render(self):
         """
