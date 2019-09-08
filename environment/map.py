@@ -341,21 +341,9 @@ class Map:
 
         return sum
 
-
+    def get_as_vector(self):
+        return self.map.flatten()
 
     def _render(self):
         "Creates an image from the current map."
         return Image.fromarray(self.map, "RGB")
-
-    def _end_state(self, map_shape, map):
-        """
-        Checks if whole maps is explored.
-        :param map: Numpy array representing the map.
-        :return: true if the map is totally explored.
-        """
-        flag = True
-        for i in range  (0, self.map.shape[0]):
-            for j in range(0, self.map.shape[1]):
-                if map[i][j] & (2**6-1) == 0:
-                    flag = False
-        return flag

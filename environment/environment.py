@@ -5,6 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
+from tf_agents.trajectories import time_step as ts
 
 import numpy
 from math import sqrt
@@ -59,6 +60,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         self.step_size = step_size
         self.diagonal_step_size = int(sqrt(step_size**2 / 2))
         self.visible_radius = visible_radius
+        self.episode_ended = False
 
 
     def action_spec(self):
@@ -69,15 +71,20 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
     def _reset(self,map_shape):
         self.___init___(self, map_shape)
+        # Todo: send tuple
 
     def _step(self, action):
         if self.turn == 0:
             self.timestamp += 1
 
+        if self._end_state():
+            return self._reset()
+
         if self.zebros[self.turn]["battery"] == 0 or self.zebros[self.turn]["damage"] >= 1.0:
             pass
 
         if action == 0:
+            # TODO: Return new transition tuple
             pass
 
         zebro_curr_x = self.zebros[self.turn]["x"]
@@ -176,6 +183,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
         self.turn = (self.turn + 1) % len(self.zebros)
 
+        observation = []
+
         reward = self.map.visit(
             (self.zebros[self.turn]["x"],self.zebros[self.turn]["y"]),
             self.timestamp,
@@ -184,7 +193,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
 
         reward *= self._reward_helper()
 
-        return
+        return ts.transition(observation, reward)
 
     def _reward_helper(self):
         """
@@ -218,18 +227,46 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         #    return 0.8
         return 0.8
 
-    def _calc_reward(self, map):
+    def _end_state(self):
         """
-        :param map: A numpy matrix representing the map
-        :return: Integer representing the reward for the given map
+        Checks if whole maps is explored.
+        :return: true if the map is totally explored.
         """
-        pass
+        # Check if timestamp started to overflow
+        if self.timestamp >= 2**6:
+            return True
+
+        # Check if there's still a functioning zebro
+        still_alive = False
+        for zebro in self.zebros:
+            if zebro["battery"] > 0 and zebro["damage"] < 1.0:
+                still_alive = True
+
+        if not still_alive:
+            return True
+
+        # Check if all the pixels are discovered
+        for i in range  (0, self.map.map.shape[0]):
+            for j in range(0, self.map.map.shape[1]):
+                if self.map.map[i][j] & (2**6-1) == 0:
+                    return False
+        return True
+
+    def _get_observation_vector(self):
+        """
+        Returns observation as a vector
+        :return: Observation vector
+        """
+        # TODO: IONUT
 
     def _render(self):
         """
         Creates an image of the given environment
         :return: an
         """
+
+
+
 
 
 a = ZebroEnvironment()
