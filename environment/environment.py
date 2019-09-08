@@ -30,7 +30,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         1 -> Wait/Sleep
 
     """
-    def __init__(self, map_shape):
+    def __init__(self, map_shape, step_size=1, visible_radius=1):
         super().__init__()
         self.map = Map(map_shape[0], map_shape[1])
         self.step_size = 10
@@ -55,6 +55,10 @@ class ZebroEnvironment(py_environment.PyEnvironment):
             name="observation"
         )
         self.MAX_RANGE = 15/100 * (map_shape[0] + map_shape[1])/2;
+        self.timestamp = 1
+        self.step_size = step_size
+        self.diagonal_step_size = int(sqrt(step_size**2 / 2))
+        self.visible_radius = visible_radius
 
 
     def action_spec(self):
@@ -67,6 +71,9 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         self.___init___(self, map_shape)
 
     def _step(self, action):
+        if self.turn == 0:
+            self.timestamp += 1
+
         if self.zebros[self.turn]["battery"] == 0 or self.zebros[self.turn]["damage"] >= 1.0:
             pass
 
@@ -80,7 +87,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 1:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x, zebro_curr_y - 1):
-                    zebro_curr_y -= 1
+                    zebro_curr_y -= self.step_size
                 else:
                     break
 
@@ -90,8 +97,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 2:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y - 1):
-                    zebro_curr_x += 1
-                    zebro_curr_y -= 1
+                    zebro_curr_x += self.diagonal_step_size
+                    zebro_curr_y -= self.diagonal_step_size
                 else:
                     break
 
@@ -102,7 +109,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 3:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y):
-                    zebro_curr_x += 1
+                    zebro_curr_x += self.step_size
                 else:
                     break
 
@@ -112,8 +119,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 4:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x + 1, zebro_curr_y + 1):
-                    zebro_curr_x += 1
-                    zebro_curr_y += 1
+                    zebro_curr_x += self.diagonal_step_size
+                    zebro_curr_y += self.diagonal_step_size
                 else:
                     break
 
@@ -124,7 +131,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 5:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x, zebro_curr_y + 1):
-                    zebro_curr_y += 1
+                    zebro_curr_y += self.step_size
                 else:
                     break
 
@@ -134,8 +141,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 6:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y + 1):
-                    zebro_curr_x -= 1
-                    zebro_curr_y += 1
+                    zebro_curr_x -= self.diagonal_step_size
+                    zebro_curr_y += self.diagonal_step_size
                 else:
                     break
 
@@ -146,7 +153,7 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 7:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y):
-                    zebro_curr_x -= 1
+                    zebro_curr_x -= self.step_size
                 else:
                     break
 
@@ -156,8 +163,8 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         if action == 8:
             for i in range(self.step_size):
                 if not self.map.square_is_blocked(zebro_curr_x - 1, zebro_curr_y - 1):
-                    zebro_curr_x -= 1
-                    zebro_curr_y -= 1
+                    zebro_curr_x -= self.diagonal_step_size
+                    zebro_curr_y -= self.diagonal_step_size
                 else:
                     break
 
@@ -168,6 +175,15 @@ class ZebroEnvironment(py_environment.PyEnvironment):
         self.zebros[self.turn]["damage"] += random.uniform(0.005, 0.01)
 
         self.turn = (self.turn + 1) % len(self.zebros)
+
+        reward = self.map.visit(
+            (self.zebros[self.turn]["x"],self.zebros[self.turn]["y"]),
+            self.timestamp,
+            radius=self.visible_radius
+        )
+
+        reward *= self._reward_helper()
+
         return
 
     def _reward_helper(self):

@@ -301,6 +301,48 @@ class Map:
 
         return result
 
+    def visit(self, location, timestamp, radius=0):
+        """
+        Makes the required changes to the map in terms of timestamp variable.
+        Returns the sum of all the changes in timestamp.
+        :param location: Location where the visit has been made
+        :param timestamp: Current timestamp
+        :param radius: Radius the agent can visit from the location
+        :return: Sum of all the changes in timestamp (for easier calculation of reward)
+        """
+        if timestamp > 2**6 -1:
+            pass
+        center_x = location[0]
+        center_y = location[1]
+        sum = timestamp - self.map[center_x][center_y]
+        self.map[center_x][center_y] += sum
+        importance = (self.map[center_x][center_y] & 960) >> 6
+        sum *= importance
+
+        for i in range(2*radius):
+            y = center_y - radius + i
+            if y < 0:   #outside the map
+                continue
+
+            for j in range(2*radius):
+                x = center_x - radius + j
+                if x < 0:   # outside the map
+                    continue
+
+                if math.sqrt((y-center_y)**2 + (x-center_x)**2) > radius:   #outside the radius
+                    continue
+
+                temp_sum = timestamp - self.map[x][y]
+                importance = (self.map[x][y] & 960) >> 6
+                self.map[x][y] += temp_sum
+
+                temp_sum *= importance
+                sum += temp_sum
+
+        return sum
+
+
+
     def _render(self):
         "Creates an image from the current map."
         return Image.fromarray(self.map, "RGB")
