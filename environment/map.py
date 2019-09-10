@@ -76,8 +76,8 @@ class Map:
     def generate_blocks(self, blocked_ratio):
 
         blocks = self.generate_blocks_check(blocked_ratio)
-
-        while blocks == 0:
+        print(type(blocks))
+        while type(blocks) == type(0) and blocks == 0:
             blocks = self.generate_blocks_check(blocked_ratio)
 
         return blocks
@@ -114,7 +114,7 @@ class Map:
             if self.check_fully_blocked_areas(blocks):
                 # Also shift bits into proper place
                 for i in range(len(blocks)):
-                    for j in range(len(i)):
+                    for j in range(len(blocks[i])):
                         val = blocks[i][j]
                         blocks[i][j] = val << offset_for_blocked_value
 
