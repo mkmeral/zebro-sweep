@@ -46,7 +46,7 @@ class Map:
         # Generate base map
         print('Generating the map..')
 
-        self.map = np.zeros((height, width), dtype=np.int16)
+        self.map = np.zeros((height, width), dtype=np.uint16)
         start = time.time()
         self.map += self.generate_blocks(blocked_ratio)
         checkpoint1 = time.time()
@@ -90,8 +90,8 @@ class Map:
         height, width = self.map.shape
 
         while True:
-            #blocks = np.zeros((height, width), dtype=np.int16)
-            blocks = np.ones((height, width), dtype=np.int16) * 2
+            #blocks = np.zeros((height, width), dtype=np.uint16)
+            blocks = np.ones((height, width), dtype=np.uint16) * 2
             offset_for_blocked_value = 15
 
             nr_blocked_squares = int(width * height * blocked_ratio)
@@ -129,7 +129,7 @@ class Map:
         """
 
         height, width = self.map.shape
-        slow_areas = np.zeros((height, width), dtype=np.int16)
+        slow_areas = np.zeros((height, width), dtype=np.uint16)
 
         offset_for_slow_value = 12
         max_value = 2 ** 3
@@ -169,7 +169,7 @@ class Map:
         """
 
         height, width = self.map.shape
-        sunny_areas = np.zeros((height, width), dtype=np.int16)
+        sunny_areas = np.zeros((height, width), dtype=np.uint16)
 
         offset_for_sun_value = 10
         max_value = 2 ** 3
@@ -209,7 +209,7 @@ class Map:
         """
 
         height, width = self.map.shape
-        importance_map = np.zeros((height, width), dtype=np.int16)
+        importance_map = np.zeros((height, width), dtype=np.uint16)
         importance_map = importance_map + 2**6
         max_importance_value = math.pow(2, 4) - 1
 
@@ -299,7 +299,7 @@ class Map:
         MAGICAL_PROPORTION_FOR_RADIUS = 6
 
         height, width = self.map.shape
-        result = np.zeros((height, width), dtype=np.int16)
+        result = np.zeros((height, width), dtype=np.uint16)
 
         if radius is None:
             radius = (height + width) / (2 * MAGICAL_PROPORTION_FOR_RADIUS)
