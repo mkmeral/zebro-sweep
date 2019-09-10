@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import random
+import time
 from PIL import Image
 
 
@@ -43,12 +44,24 @@ class Map:
         """
 
         # Generate base map
+        print('Generating the map..')
+
         self.map = np.zeros((height, width), dtype=np.int16)
+        start = time.time()
         self.map += self.generate_blocks(blocked_ratio)
+        checkpoint1 = time.time()
+        print('Generated blocks in', checkpoint1-start)
         self.map += self.generate_slow_areas(slow_ratio)
+        checkpoint2 = time.time()
+        print('Generated Slow Areas in', checkpoint2-checkpoint1)
         self.map += self.generate_sunny_areas(sun_avg)
+        checkpoint3 = time.time()
+        print('Generated Sunny Areas in', checkpoint3-checkpoint2)
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
+            checkpoint4 = time.time()
+            print('Generated Important Areas in', checkpoint4-checkpoint3)
+        print('Map initiated in', checkpoint4-start)
 
     def square_is_blocked(self, x, y):
 
@@ -57,8 +70,8 @@ class Map:
 
         # if not blocked
         if b == 0:
-            return true
-        return false
+            return True
+        return False
 
     def generate_blocks(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
@@ -91,9 +104,10 @@ class Map:
 
             if self.check_fully_blocked_areas(blocks):
                 # Also shift bits into proper place
-                for row in slow_areas:
-                    for val in row:
-                        blocks[row][val] = val << offset_for_blocked_value
+                for i in range(len(blocks)):
+                    for j in range(len(i)):
+                        val = blocks[i][j]
+                        blocks[i][j] = val << offset_for_blocked_value
 
                 return blocks
             else:
@@ -117,7 +131,7 @@ class Map:
         height, width = self.map.shape
         slow_areas = np.zeros((height, width), dtype=np.int16)
 
-        offset_for_slow_value = 13
+        offset_for_slow_value = 12
         max_value = 2 ** 3
 
         number_of_centers = 2  # TODO: Create a size based value for it
@@ -127,15 +141,16 @@ class Map:
             x = random.randint(0, width)
             y = random.randint(0, height)
 
-            slow_areas = + self.create_circular_effect((x, y), max_value=7)
+            slow_areas += self.create_circular_effect((x, y), max_value=7)
 
         # Check to make sure we dont have an overflow!
         # Also shift bits into proper place
-        for row in slow_areas:
-            for val in row:
+        for i in range(len(slow_areas)):
+            for j in range(len(slow_areas[i])):
+                val = slow_areas[i][j]
                 if val > max_value:
                     val = max_value
-                slow_areas[row][val] = val << offset_for_slow_value
+                slow_areas[i][j] = val << offset_for_slow_value
 
         return slow_areas
 
@@ -170,11 +185,12 @@ class Map:
 
         # Check to make sure we dont have an overflow!
         # Also shift bits into proper place
-        for row in sunny_areas:
-            for val in row:
+        for i in range(len(sunny_areas)):
+            for j in range(len(sunny_areas[i])):
+                val = sunny_areas[i][j]
                 if val > max_value:
                     val = max_value
-                sunny_areas[row][val] = val << offset_for_sun_value
+                sunny_areas[i][j] = val << offset_for_sun_value
 
         return sunny_areas
 
@@ -194,7 +210,7 @@ class Map:
 
         height, width = self.map.shape
         importance_map = np.zeros((height, width), dtype=np.int16)
-
+        importance_map = importance_map + 2**6
         max_importance_value = math.pow(2, 4) - 1
 
         for coordinate in important_areas:
@@ -204,10 +220,11 @@ class Map:
 
         coefficient = matrix_avg / 2 if matrix_avg > (max_importance_value * 2 / 3) else 1
 
-        for row in importance_map:
-            for val in row:
+        for i in range(len(importance_map)):
+            for j in range(len(i)):
+                val = importance_map[i][j]
                 val *= coefficient
-                importance_map[row][val] = max_importance_value if val > max_importance_value else val
+                importance_map[i][j] = max_importance_value if val > max_importance_value else val
 
         #   by making those locations the most important points
         #   and then slowly reducing the importance in radius r
@@ -239,7 +256,7 @@ class Map:
             else:
                 i += 1
 
-        self.fill(blocks, width, height, int(i / width), int(i % width))
+        #self.fill(blocks, width, height, int(i / width), int(i % width))
 
         for square in blocks.flat:
             if square == 2:
@@ -249,8 +266,8 @@ class Map:
         # TODO: check if any point A is accessible by any other point B
 
     def fill(self, blocks, width, height, x, y):
-        if blocks[x, y] == 2:
-            blocks[x, y] = 0
+        if blocks[x][y] == 2:
+            blocks[x][y] = 0
             # recursively invoke fill on surrounding cells:
             if x > 0:
                 self.fill(blocks, width, height, x - 1, y)
@@ -282,7 +299,7 @@ class Map:
         MAGICAL_PROPORTION_FOR_RADIUS = 6
 
         height, width = self.map.shape
-        result = np.zeros((height, width))
+        result = np.zeros((height, width), dtype=np.int16)
 
         if radius is None:
             radius = (height + width) / (2 * MAGICAL_PROPORTION_FOR_RADIUS)
@@ -293,8 +310,8 @@ class Map:
         min_y = 0 if radius > coordinates[1] else coordinates[1] - radius
         max_y = height - 1 if coordinates[1] + radius >= height else coordinates[1] + radius
 
-        for x in range(min_x, max_x):
-            for y in range(min_y, max_y):
+        for x in range(int(min_x), int(max_x)):
+            for y in range(int(min_y), int(max_y)):
                 distance_to_center = math.sqrt((x - coordinates[0]) ** 2 + (y - coordinates[1]) ** 2)
                 result[y][x] = int(
                     (radius - distance_to_center) * max_value / radius) if radius > distance_to_center else 0
