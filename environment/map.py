@@ -59,8 +59,8 @@ class Map:
         print('Generated Sunny Areas in', checkpoint3-checkpoint2)
         if important_areas is not None:
             self.map += self.generate_important_areas(important_areas)
-            checkpoint4 = time.time()
-            print('Generated Important Areas in', checkpoint4-checkpoint3)
+        checkpoint4 = time.time()
+        print('Generated Important Areas in', checkpoint4-checkpoint3)
         print('Map initiated in', checkpoint4-start)
 
     def square_is_blocked(self, x, y):
@@ -363,4 +363,5 @@ class Map:
 
     def _render(self):
         "Creates an image from the current map."
-        return Image.fromarray(self.map, "RGB")
+        # TODO: Improve rendering
+        return Image.fromarray(self.map.astype('int32'), "RGB")
