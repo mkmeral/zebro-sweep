@@ -61,6 +61,15 @@ class Map:
         return false
 
     def generate_blocks(self, blocked_ratio):
+
+        blocks = self.generate_blocks_check(blocked_ratio)
+
+        while blocks == 0:
+            blocks = self.generate_blocks_check(blocked_ratio)
+
+        return blocks
+        
+    def generate_blocks_check(self, blocked_ratio):
         """Generates a map (as matrix) containing only blocked areas.
 
         Parameters
@@ -249,17 +258,35 @@ class Map:
         # TODO: check if any point A is accessible by any other point B
 
     def fill(self, blocks, width, height, x, y):
-        if blocks[x, y] == 2:
+
+        dx = [0, 1, 0, -1]
+        dy = [-1, 0, 1, 0]
+
+        qx = []
+        qy = []
+
+        qx.append(x)
+        qy.append(y)
+
+        while (len(qx) > 0) & (len(qy) > 0):
+
+            x = qx[0]
+            y = qy[0]
             blocks[x, y] = 0
-            # recursively invoke fill on surrounding cells:
-            if x > 0:
-                self.fill(blocks, width, height, x - 1, y)
-            if x < height - 1:
-                self.fill(blocks, width, height, x + 1, y)
-            if y > 0:
-                self.fill(blocks, width, height, x, y - 1)
-            if y < width - 1:
-                self.fill(blocks, width, height, x, y + 1)
+
+            for i in range(4):
+
+                nx = x + dx[i]
+                ny = y + dy[i]
+
+                if blocks[nx, ny] == 2:
+                    blocks[nx, ny] = 0
+                    qx.append(nx)
+                    qy.append(ny)
+
+            qx.pop(0)
+            qy.pop(0)
+
 
     def create_circular_effect(self, coordinates, radius=None, max_value=1.0):
         """Generates a circular patterned map with the given parameters.
