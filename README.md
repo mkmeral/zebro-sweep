@@ -1,1 +1,3 @@
 # zebro-sweep
+
+This is an experimental project that is created as a proof of concept for using Deep Reinforcement Learning for [Zebro](https://tudelftroboticsinstitute.nl/robots/zebro) area sweeping/spreading problem. The goal is to create a basic agent that can later be used to train upon (meaning instead of training a new agent from beginning the experience -namely Q-Network- can be transferred for faster learning.)
