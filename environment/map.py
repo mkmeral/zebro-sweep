@@ -19,7 +19,7 @@ class Map:
 
     """
 
-    def __init__(self, width, height, blocked_ratio=0.01, slow_ratio=0.05, sun_avg=0.4, important_areas=None):
+    def __init__(self, width, height, blocked_ratio=0.01, slow_ratio=0.05, sun_avg=0.4, important_areas=[]):
         """Generates a map object with the given parameters.
 
         Parameters
@@ -65,13 +65,19 @@ class Map:
 
     def square_is_blocked(self, x, y):
 
-        offset_for_blocked_value = 15
-        b = self.map[x, y] & (1 << offset_for_blocked_value)
-
-        # if not blocked
-        if b == 0:
+        if x >= self.map.shape[0] or y >= self.map.shape[1]\
+                or x < 0 or y < 0:
             return True
-        return False
+
+        offset_for_blocked_value = 15
+        b = self.map[x][y] & (1 << offset_for_blocked_value)
+
+        # if blocked
+        if b == 0:
+            return False
+
+        print('Square Blocked!')
+        return True
 
     def generate_blocks(self, blocked_ratio):
 
@@ -180,7 +186,7 @@ class Map:
         height, width = self.map.shape
         sunny_areas = np.zeros((height, width), dtype=np.uint16)
 
-        offset_for_sun_value = 10
+        offset_for_sun_value = 12
         max_value = 2 ** 3
 
         number_of_centers = 8  # TODO: Create a size based value for it
@@ -189,8 +195,8 @@ class Map:
         for i in range(number_of_centers):
             x = random.randint(0, width)
             y = random.randint(0, height)
-
-            sunny_areas = + self.create_circular_effect((x, y), max_value=7)
+            print(x, y)
+            sunny_areas += self.create_circular_effect((x, y), max_value=7)
 
         # Check to make sure we dont have an overflow!
         # Also shift bits into proper place
@@ -216,11 +222,10 @@ class Map:
         map
             a map as a matrix containing only importance values.
         """
-
         height, width = self.map.shape
         importance_map = np.zeros((height, width), dtype=np.uint16)
-        importance_map = importance_map + 2**6
-        max_importance_value = math.pow(2, 4) - 1
+        importance_map = importance_map + 1
+        max_importance_value = 2**4 - 1
 
         for coordinate in important_areas:
             importance_map += self.create_circular_effect(coordinate, max_value=15)
@@ -230,10 +235,11 @@ class Map:
         coefficient = matrix_avg / 2 if matrix_avg > (max_importance_value * 2 / 3) else 1
 
         for i in range(len(importance_map)):
-            for j in range(len(i)):
+            for j in range(len(importance_map[i])):
                 val = importance_map[i][j]
                 val *= coefficient
-                importance_map[i][j] = max_importance_value if val > max_importance_value else val
+                val = max_importance_value if val > max_importance_value else val
+                importance_map[i][j] = val << 6
 
         #   by making those locations the most important points
         #   and then slowly reducing the importance in radius r
@@ -322,7 +328,7 @@ class Map:
             A map containing the newly added values in a circular pattern.
         """
 
-        MAGICAL_PROPORTION_FOR_RADIUS = 6
+        MAGICAL_PROPORTION_FOR_RADIUS = random.randint(6,12)
 
         height, width = self.map.shape
         result = np.zeros((height, width), dtype=np.uint16)
@@ -357,31 +363,30 @@ class Map:
             pass
         center_x = location[0]
         center_y = location[1]
-        sum = timestamp - self.map[center_x][center_y]
+        sum = timestamp - (self.map[center_x][center_y] & 0b111111)
         self.map[center_x][center_y] += sum
-        importance = (self.map[center_x][center_y] & 960) >> 6
+        importance = (self.map[center_x][center_y] >> 6) & 0b111
         sum *= importance
 
         for i in range(2*radius):
             y = center_y - radius + i
-            if y < 0:   #outside the map
+            if y < 0 or y >= self.map.shape[1]:   #outside the map
                 continue
 
             for j in range(2*radius):
                 x = center_x - radius + j
-                if x < 0:   # outside the map
+                if x < 0 or x >= self.map.shape[0]:   # outside the map
                     continue
 
                 if math.sqrt((y-center_y)**2 + (x-center_x)**2) > radius:   #outside the radius
                     continue
 
-                temp_sum = timestamp - self.map[x][y]
-                importance = (self.map[x][y] & 960) >> 6
+                temp_sum = timestamp - (self.map[x][y] & 0b111111)
+                importance = (self.map[x][y] >> 6) & 0b111
                 self.map[x][y] += temp_sum
 
                 temp_sum *= importance
                 sum += temp_sum
-
         return sum
 
     def get_as_vector(self):
@@ -390,4 +395,4 @@ class Map:
     def _render(self):
         "Creates an image from the current map."
         # TODO: Improve rendering
-        return Image.fromarray(self.map.astype('int32'), "RGB")
+        return Image.fromarray(self.map.astype('int32'), "CMYK")
